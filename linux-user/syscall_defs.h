@@ -1909,6 +1909,9 @@ struct target_stat64 {
 	int64_t  	st_blocks;
 };
 
+#elif defined(TARGET_ABI_MIPSP32)
+
+
 #elif defined(TARGET_ALPHA)
 
 struct target_stat {
