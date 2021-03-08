@@ -8,6 +8,7 @@
 #ifndef MIPS_TARGET_FCNTL_H
 #define MIPS_TARGET_FCNTL_H
 
+#ifndef TARGET_NANOMIPS
 #define TARGET_O_APPEND         0x0008
 #define TARGET_O_DSYNC          0x0010
 #define TARGET_O_NONBLOCK       0x0080
@@ -27,6 +28,28 @@
 #define TARGET_F_SETOWN        24       /*  for sockets. */
 #define TARGET_F_GETOWN        23       /*  for sockets. */
 
+#else
+#define TARGET_O_APPEND         0x000400
+#define TARGET_O_DSYNC          0x001000
+#define TARGET_O_NONBLOCK       0x000800
+#define TARGET_O_CREAT          0x000040
+#define TARGET_O_TRUNC          0x000200
+#define TARGET_O_EXCL           0x000080
+#define TARGET_O_NOCTTY         0x000100
+#define TARGET_FASYNC           0x002000
+#define TARGET_O_LARGEFILE      0x008000
+#define TARGET___O_SYNC         0x101000
+#define TARGET_O_DIRECT         0x004000
+#define TARGET_O_CLOEXEC        0x080000
+
+#define TARGET_F_GETLK         5
+#define TARGET_F_SETLK         6
+#define TARGET_F_SETLKW        7
+
+#define TARGET_F_SETOWN        8       /*  for sockets. */
+#define TARGET_F_GETOWN        9       /*  for sockets. */
+#endif
+
 #if (TARGET_ABI_BITS == 32)
 
 struct target_flock {
@@ -43,9 +66,15 @@ struct target_flock {
 
 #endif
 
+#ifndef TARGET_NANOMIPS
 #define TARGET_F_GETLK64       33      /*  using 'struct flock64' */
 #define TARGET_F_SETLK64       34
 #define TARGET_F_SETLKW64      35
+#else
+#define TARGET_F_GETLK64       12      /*  using 'struct flock64' */
+#define TARGET_F_SETLK64       13
+#define TARGET_F_SETLKW64      14
+#endif
 
 #include "../generic/fcntl.h"
 #endif
