@@ -3,7 +3,11 @@
 #ifndef LINUX_USER_MIPS_TERMBITS_H
 #define LINUX_USER_MIPS_TERMBITS_H
 
+#ifdef TARGET_NANOMIPS
+#define TARGET_NCCS 32
+#else
 #define TARGET_NCCS 23
+#endif
 
 typedef unsigned char   target_cc_t;        /* cc_t */
 typedef unsigned int    target_speed_t;     /* speed_t */
