@@ -77,10 +77,18 @@ static uint64_t load_kernel(void)
                            &kernel_high, NULL, big_endian,
                            EM_MIPS, 1, 0);
     if (kernel_size < 0) {
-        error_report("could not load kernel '%s': %s",
-                     loaderparams.kernel_filename,
-                     load_elf_strerror(kernel_size));
-        exit(1);
+        /* try loading nanomips */
+        kernel_size = load_elf(loaderparams.kernel_filename, NULL,
+                           cpu_mips_kseg0_to_phys, NULL,
+                           &entry, NULL,
+                           &kernel_high, NULL, big_endian,
+                           EM_NANOMIPS, 1, 0);
+        if (kernel_size < 0) {
+            error_report("could not load kernel '%s': %s",
+                         loaderparams.kernel_filename,
+                         load_elf_strerror(kernel_size));
+            exit(1);
+        }
     }
 
     /* load initrd */
