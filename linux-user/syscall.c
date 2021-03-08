@@ -9000,7 +9000,7 @@ static abi_long do_syscall1(void *cpu_env, int num, abi_long arg1,
 #ifdef TARGET_NR_sigaction
     case TARGET_NR_sigaction:
         {
-#if defined(TARGET_MIPS)
+#if defined(TARGET_MIPS) && !defined(TARGET_NANOMIPS)
 	    struct target_sigaction act, oact, *pact, *old_act;
 
 	    if (arg2) {
