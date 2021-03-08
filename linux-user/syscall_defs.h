@@ -450,7 +450,7 @@ struct target_dirent64 {
 #define TARGET_SIG_IGN	((abi_long)1)	/* ignore signal */
 #define TARGET_SIG_ERR	((abi_long)-1)	/* error return from signal */
 
-#ifdef TARGET_MIPS
+#if defined(TARGET_MIPS) && !defined(TARGET_NANOMIPS)
 #define TARGET_NSIG	   128
 #else
 #define TARGET_NSIG	   64
@@ -506,7 +506,7 @@ typedef int32_t target_old_sa_flags;
 typedef abi_ulong target_old_sa_flags;
 #endif
 
-#if defined(TARGET_MIPS)
+#if defined(TARGET_MIPS) && !defined(TARGET_NANOMIPS)
 struct target_sigaction {
 	uint32_t	sa_flags;
 #if defined(TARGET_ABI_MIPSN32)
@@ -519,6 +519,13 @@ struct target_sigaction {
         /* ??? This is always present, but ignored unless O32.  */
         abi_ulong sa_restorer;
 #endif
+};
+#elif defined(TARGET_NANOMIPS)
+struct target_sigaction {
+    abi_ulong _sa_handler;
+    abi_uint sa_flags;
+    target_sigset_t sa_mask;
+    abi_ulong sa_restorer;
 };
 #else
 struct target_old_sigaction {
@@ -598,7 +605,7 @@ typedef struct {
 #define QEMU_SI_RT 5
 
 typedef struct target_siginfo {
-#ifdef TARGET_MIPS
+#if defined(TARGET_MIPS) && !defined(TARGET_NANOMIPS)
 	int si_signo;
 	int si_code;
 	int si_errno;
@@ -722,14 +729,17 @@ struct target_rlimit {
 };
 
 #if defined(TARGET_ALPHA)
-#define TARGET_RLIM_INFINITY	0x7fffffffffffffffull
-#elif defined(TARGET_MIPS) || (defined(TARGET_SPARC) && TARGET_ABI_BITS == 32)
-#define TARGET_RLIM_INFINITY	0x7fffffffUL
+#define TARGET_RLIM_INFINITY    0x7fffffffffffffffull
+#elif (defined(TARGET_MIPS) && !defined(TARGET_NANOMIPS)) || \
+        (defined(TARGET_SPARC) && TARGET_ABI_BITS == 32)
+#define TARGET_RLIM_INFINITY    0x7fffffffUL
+#elif defined(TARGET_NANOMIPS)
+#define TARGET_RLIM_INFINITY    0x76ffeec4UL
 #else
-#define TARGET_RLIM_INFINITY	((abi_ulong)-1)
+#define TARGET_RLIM_INFINITY    ((abi_ulong)-1)
 #endif
 
-#if defined(TARGET_MIPS)
+#if defined(TARGET_MIPS) && !defined(TARGET_NANOMIPS)
 #define TARGET_RLIMIT_CPU		0
 #define TARGET_RLIMIT_FSIZE		1
 #define TARGET_RLIMIT_DATA		2
@@ -745,6 +755,22 @@ struct target_rlimit {
 #define TARGET_RLIMIT_MSGQUEUE		12
 #define TARGET_RLIMIT_NICE		13
 #define TARGET_RLIMIT_RTPRIO		14
+#elif defined(TARGET_NANOMIPS)
+#define TARGET_RLIMIT_CPU              0
+#define TARGET_RLIMIT_FSIZE            1
+#define TARGET_RLIMIT_DATA             2
+#define TARGET_RLIMIT_STACK            3
+#define TARGET_RLIMIT_CORE             4
+#define TARGET_RLIMIT_RSS              5
+#define TARGET_RLIMIT_NPROC            6
+#define TARGET_RLIMIT_NOFILE           7
+#define TARGET_RLIMIT_MEMLOCK          8
+#define TARGET_RLIMIT_AS               9
+#define TARGET_RLIMIT_LOCKS            10
+#define TARGET_RLIMIT_SIGPENDING       11
+#define TARGET_RLIMIT_MSGQUEUE         12
+#define TARGET_RLIMIT_NICE             13
+#define TARGET_RLIMIT_RTPRIO           14
 #else
 #define TARGET_RLIMIT_CPU		0
 #define TARGET_RLIMIT_FSIZE		1
@@ -2293,6 +2319,22 @@ struct target_statfs {
 	int32_t			f_namelen;
 	int32_t			f_flags;
 	int32_t			f_spare[5];
+};
+#elif defined(TARGET_ABI_MIPSP32)
+struct target_statfs {
+    abi_long    f_type;
+    abi_long    f_bsize;
+    abi_long    f_blocks;
+    abi_long    f_bfree;
+    abi_long    f_bavail;
+    abi_long    f_files;
+    abi_long    f_ffree;
+
+    /* Linux specials */
+    target_fsid_t f_fsid;
+    abi_long      f_namelen;
+    abi_llong     f_frsize;   /* Fragment size - unsupported */
+    abi_long      f_spare[6];
 };
 #else
 struct target_statfs {
