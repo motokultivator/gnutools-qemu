@@ -89,7 +89,17 @@ struct target_rt_sigframe {
 static inline int install_sigtramp(unsigned int *tramp,   unsigned int syscall)
 {
     int err = 0;
-
+#if defined(TARGET_NANOMIPS)
+    uint16_t *tramp16 = (uint16_t *)tramp;
+    /*
+     *         li $2, __NR__foo_sigreturn
+     *         syscall 0
+     */
+     __put_user(0x6040 , tramp16 + 0);
+     __put_user(syscall, tramp16 + 1);
+     __put_user(0      , tramp16 + 2);
+     __put_user(0x1008 , tramp16 + 3);
+#else
     /*
      * Set up the return code ...
      *
@@ -99,6 +109,7 @@ static inline int install_sigtramp(unsigned int *tramp,   unsigned int syscall)
 
     __put_user(0x24020000 + syscall, tramp + 0);
     __put_user(0x0000000c          , tramp + 1);
+#endif
     return err;
 }
 
@@ -114,7 +125,7 @@ static inline void setup_sigcontext(CPUMIPSState *regs,
     for (i = 1; i < 32; ++i) {
         __put_user(regs->active_tc.gpr[i], &sc->sc_regs[i]);
     }
-
+#if !defined(TARGET_NANOMIPS)
     __put_user(regs->active_tc.HI[0], &sc->sc_mdhi);
     __put_user(regs->active_tc.LO[0], &sc->sc_mdlo);
 
@@ -136,6 +147,7 @@ static inline void setup_sigcontext(CPUMIPSState *regs,
     for (i = 0; i < 32; ++i) {
         __put_user(regs->active_fpu.fpr[i].d, &sc->sc_fpregs[i]);
     }
+#endif
 }
 
 static inline void
@@ -145,12 +157,13 @@ restore_sigcontext(CPUMIPSState *regs, struct target_sigcontext *sc)
 
     __get_user(regs->CP0_EPC, &sc->sc_pc);
 
-    __get_user(regs->active_tc.HI[0], &sc->sc_mdhi);
-    __get_user(regs->active_tc.LO[0], &sc->sc_mdlo);
-
     for (i = 1; i < 32; ++i) {
         __get_user(regs->active_tc.gpr[i], &sc->sc_regs[i]);
     }
+
+#if !defined(TARGET_NANOMIPS)
+    __get_user(regs->active_tc.HI[0], &sc->sc_mdhi);
+    __get_user(regs->active_tc.LO[0], &sc->sc_mdlo);
 
     __get_user(regs->active_tc.HI[1], &sc->sc_hi1);
     __get_user(regs->active_tc.HI[2], &sc->sc_hi2);
@@ -167,6 +180,7 @@ restore_sigcontext(CPUMIPSState *regs, struct target_sigcontext *sc)
     for (i = 0; i < 32; ++i) {
         __get_user(regs->active_fpu.fpr[i].d, &sc->sc_fpregs[i]);
     }
+#endif
 }
 
 /*
