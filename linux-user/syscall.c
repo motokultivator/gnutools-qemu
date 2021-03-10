@@ -401,6 +401,12 @@ static const bitmask_transtbl fcntl_flags_tbl[] = {
   { 0, 0, 0, 0 }
 };
 
+static bitmask_transtbl sock_flags_tbl[] = {
+  { TARGET_SOCK_NONBLOCK,   TARGET_SOCK_NONBLOCK,    SOCK_NONBLOCK,   SOCK_NONBLOCK,    },
+  { TARGET_SOCK_CLOEXEC,    TARGET_SOCK_CLOEXEC,     SOCK_CLOEXEC,    SOCK_CLOEXEC,    },
+  { 0, 0, 0, 0 }
+};
+
 _syscall2(int, sys_getcwd1, char *, buf, size_t, size)
 
 #if defined(TARGET_NR_utimensat) || defined(TARGET_NR_utimensat_time64)
@@ -885,7 +891,7 @@ void target_set_brk(abi_ulong new_brk)
     brk_page = HOST_PAGE_ALIGN(target_brk);
 }
 
-//#define DEBUGF_BRK(message, args...) do { fprintf(stderr, (message), ## args); } while (0)
+/* #define DEBUGF_BRK(message, args...) do { fprintf(stderr, (message), ## args); } while (0) */
 #define DEBUGF_BRK(message, args...)
 
 /* do_brk() must return target values and target errnos. */
@@ -3512,7 +3518,7 @@ static abi_long do_accept4(int fd, abi_ulong target_addr,
     abi_long ret;
     int host_flags;
 
-    host_flags = target_to_host_bitmask(flags, fcntl_flags_tbl);
+    host_flags = target_to_host_bitmask(flags, sock_flags_tbl);
 
     if (target_addr == 0) {
         return get_errno(safe_accept4(fd, NULL, NULL, host_flags));
@@ -3527,7 +3533,7 @@ static abi_long do_accept4(int fd, abi_ulong target_addr,
     }
 
     if (!access_ok(thread_cpu, VERIFY_WRITE, target_addr, addrlen)) {
-        return -TARGET_EFAULT;
+        return -TARGET_EINVAL;
     }
 
     addr = alloca(addrlen);

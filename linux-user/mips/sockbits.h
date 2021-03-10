@@ -106,7 +106,12 @@ enum sock_type {
 #define TARGET_SOCK_TYPE_MASK    0xf  /* Covers up to TARGET_SOCK_MAX-1. */
 
 /* Flags for socket, socketpair, paccept */
+#ifndef TARGET_NANOMIPS
 #define TARGET_SOCK_CLOEXEC    TARGET_O_CLOEXEC
 #define TARGET_SOCK_NONBLOCK   TARGET_O_NONBLOCK
+#else
+#define TARGET_SOCK_CLOEXEC    0x80000
+#define TARGET_SOCK_NONBLOCK   0x80
+#endif
 
 #endif
