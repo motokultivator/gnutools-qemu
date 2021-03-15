@@ -37,6 +37,7 @@ typedef int64_t  Elf64_Sxword;
 #define PT_MIPS_RTPROC    0x70000001
 #define PT_MIPS_OPTIONS   0x70000002
 #define PT_MIPS_ABIFLAGS  0x70000003
+#define PT_NANOMIPS_ABIFLAGS  0x70000000
 
 /* Flags in the e_flags field of the header */
 /* MIPS architecture level. */

@@ -918,7 +918,12 @@ static void elf_core_copy_regs(target_elf_gregset_t *regs, const CPUPPCState *en
 #else
 #define ELF_CLASS   ELFCLASS32
 #endif
+
+#ifdef TARGET_NANOMIPS
+#define ELF_ARCH    EM_NANOMIPS
+#else
 #define ELF_ARCH    EM_MIPS
+#endif
 
 #define elf_check_arch(x) ((x) == EM_MIPS || (x) == EM_NANOMIPS)
 
@@ -982,7 +987,11 @@ static void elf_core_copy_regs(target_elf_gregset_t *regs, const CPUMIPSState *e
 }
 
 #define USE_ELF_CORE_DUMP
+#ifdef TARGET_NANOMIPS
+#define ELF_EXEC_PAGESIZE        TARGET_PAGE_SIZE
+#else
 #define ELF_EXEC_PAGESIZE        4096
+#endif
 
 /* See arch/mips/include/uapi/asm/hwcap.h.  */
 enum {
@@ -2890,7 +2899,12 @@ static void load_elf_image(const char *image_name, int image_fd,
                 info->brk = vaddr_em;
             }
 #ifdef TARGET_MIPS
-        } else if (eppnt->p_type == PT_MIPS_ABIFLAGS) {
+#ifdef TARGET_NANOMIPS
+#define TARGET_MIPS_PT_ABIFLAGS PT_NANOMIPS_ABIFLAGS
+#else
+#define TARGET_MIPS_PT_ABIFLAGS PT_MIPS_ABIFLAGS
+#endif
+        } else if (eppnt->p_type == TARGET_MIPS_PT_ABIFLAGS) {
             Mips_elf_abiflags_v0 abiflags;
             if (eppnt->p_filesz < sizeof(Mips_elf_abiflags_v0)) {
                 error_setg(&err, "Invalid PT_MIPS_ABIFLAGS entry");
