@@ -9,6 +9,9 @@
 #define MIPS_TARGET_ELF_H
 static inline const char *cpu_get_model(uint32_t eflags)
 {
+#ifdef TARGET_NANOMIPS
+    return "I7200";
+#else
     if ((eflags & EF_MIPS_ARCH) == EF_MIPS_ARCH_32R6) {
         return "mips32r6-generic";
     }
@@ -16,5 +19,6 @@ static inline const char *cpu_get_model(uint32_t eflags)
         return "R5900";
     }
     return "24Kf";
+#endif
 }
 #endif
