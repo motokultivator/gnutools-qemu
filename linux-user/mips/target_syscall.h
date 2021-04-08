@@ -19,7 +19,7 @@ struct target_pt_regs {
 	abi_ulong cp0_cause;
 	abi_ulong cp0_epc;
 };
-
+#ifndef TARGET_NANOMIPS
 /* Target errno definitions taken from asm-mips/errno.h */
 #undef TARGET_ENOMSG
 #define TARGET_ENOMSG          35      /* Identifier removed */
@@ -229,11 +229,20 @@ struct target_pt_regs {
 #undef TARGET_EDQUOT
 #define TARGET_EDQUOT          1133    /* Quota exceeded */
 
+#endif
+
+#ifdef TARGET_NANOMIPS
+#define UNAME_MACHINE "nanomips"
+#else
 #define UNAME_MACHINE "mips"
+#endif
+
 #define UNAME_MINIMUM_RELEASE "2.6.32"
 
 #define TARGET_CLONE_BACKWARDS
+#ifndef TARGET_NANOMIPS
 #define TARGET_MINSIGSTKSZ 2048
+#endif
 #define TARGET_MCL_CURRENT 1
 #define TARGET_MCL_FUTURE  2
 #define TARGET_MCL_ONFAULT 4
