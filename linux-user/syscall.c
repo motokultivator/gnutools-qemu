@@ -11842,7 +11842,7 @@ static abi_long do_syscall1(void *cpu_env, int num, abi_long arg1,
 
 #ifdef TARGET_NR_fadvise64_64
     case TARGET_NR_fadvise64_64:
-#if defined(TARGET_PPC) || defined(TARGET_XTENSA)
+#if defined(TARGET_PPC) || defined(TARGET_XTENSA) || defined(TARGET_NANOMIPS)
         /* 6 args: fd, advice, offset (high, low), len (high, low) */
         ret = arg2;
         arg2 = arg3;
